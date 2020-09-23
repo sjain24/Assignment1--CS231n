@@ -76,8 +76,8 @@ class KNearestNeighbor(object):
                 # not use a loop over dimension, nor use np.linalg.norm().          #
                 #####################################################################
                 # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-
-                pass
+                dists[i,j]=np.sqrt(np.sum(np.square(X[i,:]-self.X_train[j,:]),axis=0))
+                #pass
 
                 # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
         return dists
@@ -100,8 +100,8 @@ class KNearestNeighbor(object):
             # Do not use np.linalg.norm().                                        #
             #######################################################################
             # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-
-            pass
+            dists[i,:]=np.sqrt(np.sum(np.square(X[i,:]-self.X_train),axis=1))
+            
 
             # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
         return dists
@@ -130,8 +130,8 @@ class KNearestNeighbor(object):
         #       and two broadcast sums.                                         #
         #########################################################################
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-
-        pass
+        dists = np.sqrt(-2 * np.dot(X, self.X_train.T) + np.sum(self.X_train**2,axis=1) + np.sum(X**2, axis=1)[:, np.newaxis])
+        
 
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
         return dists
@@ -154,7 +154,7 @@ class KNearestNeighbor(object):
         for i in range(num_test):
             # A list of length k storing the labels of the k nearest neighbors to
             # the ith test point.
-            closest_y = []
+            closest_y=[]
             #########################################################################
             # TODO:                                                                 #
             # Use the distance matrix to find the k nearest neighbors of the ith    #
@@ -163,8 +163,10 @@ class KNearestNeighbor(object):
             # Hint: Look up the function numpy.argsort.                             #
             #########################################################################
             # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-
-            pass
+            indices=np.argsort(dists[i,:])
+            closest_y=(self.y_train[indices[:k]])
+            
+            
 
             # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
             #########################################################################
@@ -175,8 +177,18 @@ class KNearestNeighbor(object):
             # label.                                                                #
             #########################################################################
             # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-
-            pass
+            unique_elements, count_elements = np.unique(closest_y, return_counts=True)
+            copy_counts=count_elements.copy()
+            least_classVal=-1
+            copy_counts.sort()
+            for j in range(len(unique_elements)):
+                if(count_elements[j]==copy_counts[-1]):
+                    if(least_classVal<0):
+                        least_classVal=unique_elements[j]
+                    elif(least_classVal>unique_elements[j]):
+                        least_classVal=unique_elements[j]
+            y_pred[i]=least_classVal
+            
 
             # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 

@@ -32,8 +32,20 @@ def softmax_loss_naive(W, X, y, reg):
     # regularization!                                                           #
     #############################################################################
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-
-    pass
+    scores = X.dot(W)
+    for i in range(X.shape[0]):
+       
+        func = np.exp(scores[i])/np.sum(np.exp(scores[i]))
+        loss+= -np.log(func[y[i]])
+        for j in range(W.shape[1]):
+            dW[:,j]+= (func[j]*X[i])
+                
+        dW[:,y[i]] -= X[i]
+    loss/= (X.shape[0])
+    loss+= reg*np.sum(W*W)
+    dW /= (X.shape[0])
+    dW += 2*reg*W
+    #*(-1)*func[y[i]]  *func[y[i]]  
 
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
@@ -57,8 +69,20 @@ def softmax_loss_vectorized(W, X, y, reg):
     # regularization!                                                           #
     #############################################################################
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-
-    pass
+    scores = X.dot(W)
+    sum_of_exp=np.sum(np.exp(scores), axis=1, keepdims=True)
+    array_softmax= np.exp(scores)/sum_of_exp
+    loss=np.sum(-np.log(array_softmax[np.arange(X.shape[0]),y]))
+    
+    array_softmax[np.arange(X.shape[0]),y]-=1
+    dW=np.transpose(X).dot(array_softmax)
+    
+    dW/=X.shape[0]
+    loss/=X.shape[0]
+    
+    dW+=2*reg*W
+    loss+=reg*np.sum(W*W)
+    
 
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 

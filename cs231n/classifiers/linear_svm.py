@@ -27,6 +27,7 @@ def svm_loss_naive(W, X, y, reg):
     num_classes = W.shape[1]
     num_train = X.shape[0]
     loss = 0.0
+    counts = [0]*num_classes
     for i in range(num_train):
         scores = X[i].dot(W)
         correct_class_score = scores[y[i]]
@@ -35,12 +36,16 @@ def svm_loss_naive(W, X, y, reg):
                 continue
             margin = scores[j] - correct_class_score + 1 # note delta = 1
             if margin > 0:
+                counts[j] += 1
+                dW[:,y[i]] -= X[i]
+                dW[:,j] += X[i]
                 loss += margin
+            
 
     # Right now the loss is a sum over all training examples, but we want it
     # to be an average instead so we divide by num_train.
     loss /= num_train
-
+    dW /= num_train
     # Add regularization to the loss.
     loss += reg * np.sum(W * W)
 
@@ -53,8 +58,7 @@ def svm_loss_naive(W, X, y, reg):
     # code above to compute the gradient.                                       #
     #############################################################################
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-
-    pass
+    dW += reg*W
 
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
     
@@ -70,17 +74,23 @@ def svm_loss_vectorized(W, X, y, reg):
     """
     loss = 0.0
     dW = np.zeros(W.shape) # initialize the gradient as zero
-
+    num_trains = X.shape[0]
     #############################################################################
     # TODO:                                                                     #
     # Implement a vectorized version of the structured SVM loss, storing the    #
     # result in loss.                                                           #
     #############################################################################
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-
-    pass
-
-    # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
+    scores = X.dot(W)
+    # find the terms in the above 'scores' matrix where j == yi
+    j_yi = scores[np.arange(num_trains), y]
+    z = np.maximum(0, scores - np.matrix(j_yi).T+1)
+    # now we must again reset the j == yi terms because they have been set to 1 from above expression
+    z[np.arange(num_trains), y] = 0
+    loss = np.sum(z)
+    loss /= num_trains
+    loss += reg*np.sum(W * W)
+    # *****END OF YOUR CODE (DO NOT DELETE/ MODIFY THIS LINE)*****
 
     #############################################################################
     # TODO:                                                                     #
@@ -93,8 +103,18 @@ def svm_loss_vectorized(W, X, y, reg):
     #############################################################################
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-    pass
-
+    binary = z
+    # convert into a binary matrix
+    binary[z > 0] = 1
+    row_sum = np.sum(binary, axis=1)
+    # for indices where j == yi, replace with sum of rows
+    binary[np.arange(num_trains), y] = -row_sum.T
+    # scale up with the factor of xi
+    dW = np.dot(X.T, binary)
+    # Average
+    dW /= num_trains
+    # Regularize
+    dW += reg*W
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
     return loss, dW

@@ -97,9 +97,13 @@ class TwoLayerNet(object):
         # classifier loss.                                                          #
         #############################################################################
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-
-        pass
-
+        exp_scores = np.exp(scores)
+        probs = exp_scores / np.sum(exp_scores, axis=1, keepdims=True).reshape(N,1)
+        correct_logprobs = -np.log(probs[range(N), y])
+        data_loss = np.sum(correct_logprobs)/N
+        # for np.array W1*W1 is element-wise multiplication
+        reg_loss = 0.5*reg*np.sum(W1**2) + 0.5*reg*np.sum(W2**2)
+        loss = data_loss + reg_loss
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
         # Backward pass: compute gradients
@@ -111,7 +115,7 @@ class TwoLayerNet(object):
         #############################################################################
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-        pass
+        
 
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 

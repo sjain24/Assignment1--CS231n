@@ -130,3 +130,4 @@ dmypy.json
 
 # dataset
 cs231n/datasets
+.vscode
